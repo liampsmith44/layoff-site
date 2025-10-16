@@ -239,86 +239,135 @@
       container.appendChild(betSection);
     }
 
-    // Main calculation
-    function calculateLayoff() {
-      let totalLiveStake = 0;
-      let totalLayoffStake = 0;
-      const out = document.getElementById('output');
-      out.innerHTML = '';
 
-      // Sum live bets
-      for (let i = 1; i <= liveBetCount; i++) {
-        const stake = parseFloat(document.getElementById(`bet1Amount-${i}`)?.value) || 0;
-        const odds  = parseFloat(document.getElementById(`odds1-${i}`)?.value) || 0;
-        if (stake > 0 && odds > 0) totalLiveStake += stake;
-      }
+// pretty money
+function money(x){ return '$' + Number(x).toFixed(2); }
 
-      // For each layoff, compute stake to lock in the chosen profit
-      const layoffProfits = {};
-      for (let j = 1; j <= layoffBetCount; j++) {
-        const odds = parseFloat(document.getElementById(`odds2-${j}`)?.value) || 0;
-        const layoffName = (document.getElementById(`bet2Name-${j}`)?.value || `Layoff Bet ${j}`).trim();
-        const setAmount = parseFloat(document.getElementById(`setAmount-${j}`)?.value) || 0;
+// simple Gaussian elimination (no external libs)
+function solveLinearSystem(A, b) {
+  const n = A.length;
+  // Deep copy
+  A = A.map(row => row.slice());
+  b = b.slice();
 
-        if (odds > 1 && setAmount >= 0) {
-          // Stake that returns "setAmount" profit after covering all stakes
-          const stakeForSetAmount = (totalLiveStake + setAmount) / (odds - 1);
-          totalLayoffStake += stakeForSetAmount;
-          out.innerHTML += `Back ${layoffName}: Stake $${stakeForSetAmount.toFixed(2)} at odds of $${odds.toFixed(2)}<br />`;
-          layoffProfits[layoffName] = setAmount;
-        }
-      }
+  const EPS = 1e-9;
 
-      out.innerHTML += '<br />';
-
-      // Outcomes if any live bet wins
-      let combined = '';
-      for (let i = 1; i <= liveBetCount; i++) {
-        const stake = parseFloat(document.getElementById(`bet1Amount-${i}`)?.value) || 0;
-        const odds  = parseFloat(document.getElementById(`odds1-${i}`)?.value) || 0;
-        const name  = (document.getElementById(`bet1Name-${i}`)?.value || `Live Bet ${i}`).trim();
-
-        if (stake > 0 && odds > 0) {
-          const profitIfWins = (stake * odds) - (totalLiveStake + totalLayoffStake);
-          const cls = profitIfWins >= 0 ? 'profit' : 'loss';
-          combined += `<span class="${cls}">If ${name} wins: ${profitIfWins >= 0 ? '+' : ''}$${profitIfWins.toFixed(2)}</span><br />`;
-        }
-      }
-
-      // Outcomes if layoff(s) win
-      Object.keys(layoffProfits).forEach(name => {
-        combined += `<span class="profit">If ${name} wins: +$${layoffProfits[name].toFixed(2)}</span><br />`;
-      });
-
-      out.innerHTML += combined;
+  // Forward elimination
+  for (let i = 0; i < n; i++) {
+    // pivot
+    let piv = i;
+    for (let r = i + 1; r < n; r++) {
+      if (Math.abs(A[r][i]) > Math.abs(A[piv][i])) piv = r;
     }
-
-    // Clear everything
-    function clearAllFields() {
-      document.getElementById('output').innerHTML = '';
-
-      for (let i = 1; i <= liveBetCount; i++) {
-        const n = document.getElementById(`bet1Name-${i}`);      if (n) n.value = '';
-        const s = document.getElementById(`bet1Amount-${i}`);    if (s) s.value = '';
-        const o = document.getElementById(`odds1-${i}`);         if (o) o.value = '';
-        const c = document.getElementById(`collect1-${i}`);      if (c) c.textContent = '$0.00';
-        const e1= document.getElementById(`error-bet1Amount-${i}`); if (e1) e1.textContent = '';
-        const e2= document.getElementById(`error-odds1-${i}`);      if (e2) e2.textContent = '';
-      }
-
-      for (let j = 1; j <= layoffBetCount; j++) {
-        const n = document.getElementById(`bet2Name-${j}`);    if (n) n.value = '';
-        const o = document.getElementById(`odds2-${j}`);       if (o) o.value = '';
-        const a = document.getElementById(`setAmount-${j}`);   if (a) a.value = '';
-        const e1= document.getElementById(`error-odds2-${j}`);     if (e1) e1.textContent = '';
-        const e2= document.getElementById(`error-setAmount-${j}`); if (e2) e2.textContent = '';
-      }
-
-      updateRunningTotal();
+    if (Math.abs(A[piv][i]) < EPS) throw new Error('System is singular or ill-conditioned.');
+    // swap rows
+    if (piv !== i) {
+      [A[i], A[piv]] = [A[piv], A[i]];
+      [b[i], b[piv]] = [b[piv], b[i]];
     }
+    // eliminate below
+    for (let r = i + 1; r < n; r++) {
+      const f = A[r][i] / A[i][i];
+      for (let c = i; c < n; c++) A[r][c] -= f * A[i][c];
+      b[r] -= f * b[i];
+    }
+  }
 
-    // Initialize summary
-    updateRunningTotal();
+  // Back substitution
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    let s = b[i];
+    for (let c = i + 1; c < n; c++) s -= A[i][c] * x[c];
+    x[i] = s / A[i][i];
+  }
+  return x;
+}
+
+function calculateLayoff() {
+  const out = document.getElementById('output');
+  out.innerHTML = '';
+
+  // 1) Collect live bets
+  let live = [];
+  let totalLiveStake = 0;
+
+  for (let i = 1; i <= liveBetCount; i++) {
+    const name  = (document.getElementById(`bet1Name-${i}`)?.value || `Live Bet ${i}`).trim();
+    const stake = parseFloat(document.getElementById(`bet1Amount-${i}`)?.value);
+    const odds  = parseFloat(document.getElementById(`odds1-${i}`)?.value);
+    if (!isNaN(stake) && !isNaN(odds)) {
+      live.push({name, stake, odds});
+      totalLiveStake += stake;
+    }
+  }
+
+  // 2) Collect layoff odds + targets
+  let lay = [];
+  for (let j = 1; j <= layoffBetCount; j++) {
+    const name   = (document.getElementById(`bet2Name-${j}`)?.value || `Layoff Bet ${j}`).trim();
+    const odds   = parseFloat(document.getElementById(`odds2-${j}`)?.value);
+    const target = parseFloat(document.getElementById(`setAmount-${j}`)?.value);
+    if (!isNaN(odds) && odds > 1 && !isNaN(target)) {
+      lay.push({name, odds, target});
+    }
+  }
+
+  if (lay.length === 0) {
+    out.innerHTML = '<em>Please enter at least one layoff bet (odds + target profit).</em>';
+    return;
+  }
+
+  // 3) Build Ax=b
+  const n = lay.length;
+  const A = Array.from({length:n}, () => Array(n).fill(0));
+  const b = Array(n).fill(0);
+
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      A[r][c] = (r === c) ? (lay[r].odds - 1) : -1;
+    }
+    b[r] = totalLiveStake + lay[r].target;
+  }
+
+  // 4) Solve for stakes
+  let stakes;
+  try {
+    stakes = solveLinearSystem(A, b);
+  } catch (e) {
+    out.innerHTML = `<span class="loss">Could not compute stakes: ${e.message}</span>`;
+    return;
+  }
+
+  // Optional: clamp tiny negative (-0.00) to zero due to floating point
+  stakes = stakes.map(x => Math.abs(x) < 1e-7 ? 0 : x);
+
+  // Show layoff stakes
+  let totalLayoffStake = 0;
+  for (let i = 0; i < n; i++) {
+    const s = stakes[i];
+    totalLayoffStake += s;
+    out.innerHTML += `Back <strong>${lay[i].name}</strong>: Stake <strong>${money(s)}</strong> at odds of <strong>${lay[i].odds.toFixed(2)}</strong><br/>`;
+  }
+  out.innerHTML += '<br/>';
+
+  // 5) Actual profits for each outcome
+  const totalOutlay = totalLiveStake + totalLayoffStake;
+
+  // Live outcomes
+  for (const bLive of live) {
+    const profit = bLive.stake * bLive.odds - totalOutlay;
+    const cls = profit >= 0 ? 'profit' : 'loss';
+    out.innerHTML += `<span class="${cls}">If ${bLive.name} wins: ${profit >= 0 ? '+' : ''}${money(profit)}</span><br/>`;
+  }
+
+  // Layoff outcomes (these should match targets, modulo rounding cents)
+  for (let i = 0; i < n; i++) {
+    const profit = stakes[i] * lay[i].odds - totalOutlay;
+    const cls = profit >= 0 ? 'profit' : 'loss';
+    out.innerHTML += `<span class="${cls}">If ${lay[i].name} wins: ${profit >= 0 ? '+' : ''}${money(profit)}</span> (target ${money(lay[i].target)})<br/>`;
+  }
+}
+
   </script>
 </body>
 </html>
