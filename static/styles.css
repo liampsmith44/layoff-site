@@ -1,17 +1,33 @@
+/* ========== Design tokens (one source of truth) ========== */
 :root{
+  /* base */
   --bg: #f5f7fb;
-  --panel: #ffffff;
-  --panel-soft: #f7f9ff;
   --ink: #141625;
   --muted: #5b6175;
-  --brand: #0f172a;    /* header/footer */
-  --accent: #2563eb;   /* primary button */
-  --accent-2: #0ea5e9;
-  --ring: rgba(37,99,235,.35);
+
+  /* panels / cards */
+  --panel: #ffffff;
+  --panel-soft: #f7f9ff;
+
+  /* brand & accents */
+  --brand: #0f172a;           /* header/footer */
+  --accent: #2563eb;          /* primary button */
+  --accent-2: #0ea5e9;        /* secondary accent */
+  --ring: rgba(37,99,235,.35);/* focus ring */
+
+  /* borders, states */
+  --border: #e5e7eb;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --warning:#f59e0b;
+
+  /* layout */
   --radius: 14px;
+  --gap: 14px;
   --shadow: 0 10px 30px rgba(2, 8, 23, 0.08);
 }
 
+/* ========== Resets ========== */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body{
@@ -21,13 +37,12 @@ body{
   background: var(--bg);
 }
 
+/* wrappers */
 .wrap{ width: min(1100px, 92vw); margin: 0 auto; }
+.container{ max-width: 980px; margin: 24px auto; padding: 0 16px; } /* calculator page local wrapper */
 
-/* HEADER */
-.site-header{
-  background: var(--brand);
-  color: #fff;
-}
+/* ========== Header ========== */
+.site-header{ background: var(--brand); color: #fff; }
 .site-header .wrap{
   display: flex; align-items: center; gap: 28px;
   padding: 16px 0;
@@ -40,7 +55,7 @@ body{
 .main-nav a:hover{ background: rgba(255,255,255,.08); }
 .main-nav a.active{ background:#102042; color:#fff; }
 
-/* MAIN */
+/* ========== Global layout / site panels ========== */
 .site-main{ padding: 36px 0 60px; }
 
 .panel{
@@ -52,16 +67,12 @@ body{
   width: min(1100px, 92vw);
 }
 .panel.soft{ background: var(--panel-soft); }
+
 .hero{ padding: 40px 26px; }
 .hero-grid{ display:grid; gap:24px; grid-template-columns: 1.1fr .9fr; align-items:center; }
 .hero-art{ height: 220px; border-radius: 16px; background: linear-gradient(135deg, #1d2437, #2a3b73); box-shadow: inset 0 0 120px rgba(255,255,255,.06); }
 
 .lead{ color: var(--muted); max-width: 48ch; }
-.actions{ display:flex; gap:12px; margin-top:14px; }
-.btn{ border:0; background:#e5e9f7; color:#0b1428; padding:10px 14px; border-radius: 12px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
-.btn.primary{ background: var(--accent); color:#fff; }
-.btn.primary:hover{ box-shadow: 0 6px 14px var(--ring); }
-
 .cols{ display:grid; grid-template-columns: repeat(3,1fr); gap:18px; }
 .card{
   background: #fff;
@@ -70,7 +81,7 @@ body{
 }
 .card h3{ margin-top: 6px; }
 
-/* Forms */
+/* Forms (global) */
 input, textarea{
   width: 100%; padding: 12px 12px;
   border: 1px solid #dae2f2;
@@ -89,11 +100,108 @@ h1{ margin: 0 0 8px; }
 h2{ margin: 4px 0 14px; }
 .muted{ color: var(--muted); }
 
-/* FAQs */
-details.faq{ padding:14px; background:#fff; border-radius:12px; margin-bottom:10px; border:1px solid #e9eefb; }
-details.faq summary{ cursor:pointer; font-weight:600; }
+/* ========== Buttons (shared) ========== */
+.btn{
+  border:0; border-radius:12px;
+  padding: 12px 14px; font-weight:600;
+  cursor:pointer; transition: filter .15s, transform .03s ease;
+  background:#e5e9f7; color:#0b1428; /* neutral default */
+  text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+}
+.btn:hover{ filter: brightness(1.02); }
+.btn:active{ transform: translateY(.5px); }
+.btn:disabled{ opacity:.6; cursor:not-allowed; }
 
-/* FOOTER */
+/* modifiers + aliases so both (.btn.primary) and (.btn-primary) work */
+.btn.primary, .btn-primary{ background: var(--accent); color:#fff; }
+.btn.primary:hover, .btn-primary:hover{ box-shadow: 0 6px 14px var(--ring); }
+
+.btn.secondary, .btn-secondary{ background:#4b5563; color:#fff; }
+.btn.ghost, .btn-ghost{ background:#f3f4f6; color:#111827; }
+
+.actions{ display:flex; gap:12px; flex-wrap:wrap; margin-top: 12px; }
+
+/* ========== Calculator-specific ========== */
+/* Cards in calculator */
+.card-live{ background:#fffdf5; border: 2px solid #111827; border-radius: 12px; box-shadow: var(--shadow); }
+.card-layoff{ background:#f3f7ff; border: 2px solid #111827; border-radius: 12px; box-shadow: var(--shadow); }
+.card-output{ background:#f3fff3; border: 2px solid #111827; border-radius: 12px; box-shadow: var(--shadow); }
+
+.card-header{ display:flex; align-items:center; gap:10px; margin-bottom: 14px; }
+.card-title{ font-weight:700; font-size: 20px; }
+.card-sub{ color:var(--muted); font-size: 14px; }
+
+.summary-bar{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 10px;
+  padding: 10px 12px;
+  background:#111827;
+  color:#fff;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  font-weight:600;
+}
+
+.bet-section-header{
+  display:grid;
+  grid-template-columns: 1.1fr 1fr 1fr 0.8fr;
+  gap:var(--gap);
+  align-items:center;
+  margin: 6px 0 10px;
+  padding:10px 12px;
+  color:#fff;
+  background:#111827;
+  border-radius:var(--radius);
+  font-size:14px;
+}
+.bet-section{
+  display:grid;
+  grid-template-columns: 1.1fr 1fr 1fr 0.8fr;
+  gap:var(--gap);
+  align-items:end;
+  margin-bottom: 10px;
+}
+
+/* “input” class used on calculator fields */
+.input{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 12px;
+  background:#fff;
+  color:var(--ink);
+  transition: border-color .15s, box-shadow .15s, transform .03s ease;
+}
+.input:focus{
+  outline:none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.15);
+}
+.input:active{ transform: translateY(0.5px); }
+
+/* Badges & output */
+.badge{
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 6px 10px; border-radius:999px; font-weight:600; font-size: 13px;
+}
+.badge.success{ background: rgba(22,163,74,.1); color: var(--success); }
+.badge.danger{  background: rgba(220,38,38,.10); color: var(--danger); }
+.badge.warning{ background: rgba(245,158,11,.12); color: var(--warning); }
+
+.output{
+  background: #f0fdf4;
+  border:1px solid #dcfce7;
+  border-radius: var(--radius);
+  padding: 14px;
+  line-height:1.6;
+  min-height: 44px;
+}
+.profit { color: var(--success); font-weight:600; }
+.loss   { color: var(--danger);  font-weight:600; }
+.error  { color: var(--danger);  font-size:12px; margin-top:6px }
+
+/* ========== Footer ========== */
 .site-footer{ background: var(--brand); color:#c9d7ff; margin-top: 24px; padding: 28px 0; }
 .site-footer .logo.small{ font-size:18px; }
 .site-footer .logo span{ color:#60a5fa; }
@@ -106,9 +214,17 @@ details.faq summary{ cursor:pointer; font-weight:600; }
 .socials a{ margin-right:10px; }
 .fineprint{ border-top:1px solid rgba(255,255,255,.08); margin-top:16px; padding-top:12px; font-size:13px; color:#9fb2ff; }
 
-/* Responsive */
+/* ========== Responsive ========== */
 @media (max-width: 960px) {
   .hero-grid{ grid-template-columns: 1fr; }
   .cols{ grid-template-columns: 1fr; }
   .grid-2{ grid-template-columns: 1fr; }
+}
+@media (max-width: 900px){
+  .bet-section,.bet-section-header{ grid-template-columns: 1fr 1fr; }
+  .summary-bar{ grid-template-columns: 1fr; }
+}
+@media (max-width: 540px){
+  .actions{ position: sticky; bottom: 12px; z-index: 10 }
+  .btn-primary{ width:100% }
 }
