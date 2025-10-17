@@ -78,6 +78,7 @@ body{
   background: #fff;
   border-radius: 12px;
   padding: 16px; box-shadow: 0 6px 18px rgba(2,8,23,.06);
+  margin-bottom: 30px;
 }
 .card h3{ margin-top: 6px; }
 
@@ -116,8 +117,9 @@ h2{ margin: 4px 0 14px; }
 .btn.primary, .btn-primary{ background: var(--accent); color:#fff; }
 .btn.primary:hover, .btn-primary:hover{ box-shadow: 0 6px 14px var(--ring); }
 
-.btn.secondary, .btn-secondary{ background:#4b5563; color:#fff; }
+.btn.secondary, .btn-secondary{ background:#16a34a; color:#fff; }
 .btn.ghost, .btn-ghost{ background:#f3f4f6; color:#111827; }
+.btn-secondary:hover {  filter: brightness(1.1);}
 
 .actions{ display:flex; gap:12px; flex-wrap:wrap; margin-top: 12px; }
 
