@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}Layoff{% endblock %}</title>
 
-  <!-- Force-load the file from FastAPI's static mount -->
-  <link rel="stylesheet" href="/static/styles.css?v=1">
+  <!-- your stylesheet -->
+  <link rel="stylesheet" href="/static/styles.css?v=1" />
+
+  <!-- ADD THIS: allows pages (like calculator.html) to inject extra <style> or <script> in <head> -->
+  {% block head_extra %}{% endblock %}
   </head>
 
 <body>
