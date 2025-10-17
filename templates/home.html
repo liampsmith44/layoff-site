@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Layoff — Home{% endblock %}
+{% block content %}
+
+<section class="panel hero">
+  <div class="hero-grid">
+    <div>
+      <h1>Smarter Layoff Betting</h1>
+      <p class="lead">Calculate dynamic hedge stakes, visualise outcomes, and manage live positions with clarity.</p>
+      <div class="actions">
+        <a class="btn primary" href="/calculator">Open Layoff Calculator</a>
+        <a class="btn" href="/faqs">How it works</a>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true"></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>How it works</h2>
+  <div class="cols">
+    <div class="card">
+      <h3>1. Enter Live Bets</h3>
+      <p>Record your current positions and see running stake and max profit instantly.</p>
+    </div>
+    <div class="card">
+      <h3>2. Target Profits</h3>
+      <p>Set per-outcome profit targets for layoff selections — we’ll solve the stakes precisely.</p>
+    </div>
+    <div class="card">
+      <h3>3. Compare Outcomes</h3>
+      <p>See outcome-by-outcome profits for live and layoff selections, with clean green/red cues.</p>
+    </div>
+  </div>
+</section>
+
+<section class="panel soft">
+  <h2>Testimonials / Disclaimer</h2>
+  <p class="muted">This tool is for informational purposes only and does not constitute financial advice. Use responsibly and within your jurisdiction.</p>
+</section>
+
+<section class="panel">
+  <h2>Stay in the loop</h2>
+  <form class="inline-form" onsubmit="event.preventDefault(); alert('Thanks — demo only');">
+    <input type="email" placeholder="Email address" required />
+    <button class="btn primary" type="submit">Subscribe</button>
+  </form>
+</section>
+
+{% endblock %}

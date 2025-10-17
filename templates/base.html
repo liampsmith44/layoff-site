@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Layoff{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+
+  <!-- Header (static) -->
+  <header class="site-header">
+    <div class="wrap">
+      <a class="logo" href="/">layoff<span>.com.au</span></a>
+      <nav class="main-nav">
+        {% set p = request.url.path %}
+        <a href="/" class="{{ 'active' if p == '/' else '' }}">Home</a>
+        <a href="/calculator" class="{{ 'active' if p.startswith('/calculator') else '' }}">Layoff Calculator</a>
+        <a href="/faqs" class="{{ 'active' if p.startswith('/faqs') else '' }}">FAQs</a>
+        <a href="/contact" class="{{ 'active' if p.startswith('/contact') else '' }}">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer (editable) -->
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <div class="logo small">layoff<span>.com.au</span></div>
+        <p class="muted">Tools for managing live positions & layoff bets.</p>
+      </div>
+      <div>
+        <h4>Links</h4>
+        <ul>
+          <li><a href="/calculator">Layoff Calculator</a></li>
+          <li><a href="/faqs">FAQs</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Disclaimer</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:hello@layoff.com.au">hello@layoff.com.au</a></li>
+          <li class="socials">
+            <a href="#" aria-label="Twitter">🐦</a>
+            <a href="#" aria-label="LinkedIn">🔗</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap fineprint">
+      <p>© {{ (now() if false else '') }} layoff.com.au — Informational only, not financial advice. Australia jurisdiction.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
