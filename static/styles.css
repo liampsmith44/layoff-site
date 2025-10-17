@@ -113,11 +113,26 @@ h2{ margin: 4px 0 14px; }
 .btn:active{ transform: translateY(.5px); }
 .btn:disabled{ opacity:.6; cursor:not-allowed; }
 
+/* Utility button colors */
+.btn-success{ background:#16a34a; color:#fff; }
+.btn-success:hover{ filter:brightness(1.08); }
+
+.btn-danger{ background:#dc2626; color:#fff; }
+.btn-danger:hover{ filter:brightness(1.08); }
+
+
+.btn-danger{
+  background: #dc2626;   /* red */
+  color:#fff;
+}
+.btn-danger:hover{ filter: brightness(1.08); }
+
+
 /* modifiers + aliases so both (.btn.primary) and (.btn-primary) work */
 .btn.primary, .btn-primary{ background: var(--accent); color:#fff; }
 .btn.primary:hover, .btn-primary:hover{ box-shadow: 0 6px 14px var(--ring); }
 
-.btn.secondary, .btn-secondary{ background:#16a34a; color:#fff; }
+.btn.secondary, .btn-secondary{ background:#717271; color:#fff; }
 .btn.ghost, .btn-ghost{ background:#f3f4f6; color:#111827; }
 .btn-secondary:hover {  filter: brightness(1.1);}
 
