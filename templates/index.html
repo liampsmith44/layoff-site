@@ -8,7 +8,7 @@
   <!-- Polished UI styles (rounded, cards, inputs, buttons, responsive) -->
   <style>
     :root{
-      --bg: #f5f7fb;
+      --bg: #e9eef5;
       --card: #ffffff;
       --text: #1e1f24;
       --muted: #6b7280;
@@ -29,7 +29,7 @@
     html,body{height:100%}
     body{
       margin:0;
-      background:var(--bg);
+      background: linear-gradient(180deg, #e6ecf3 0%, #f7f9fb 100%);
       color:var(--text);
       font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
     }
@@ -41,14 +41,23 @@
     }
 
     .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding: 18px;
-      margin-bottom: 18px;
-    }
-
+      border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card-live{
+  background:#fffdf5; 
+   border: 1px solid #f7e4a3;                
+}
+.card-layoff{
+  background: #f3f7ff;                /* light blue tint */
+  border: 1px solid #c9d8ff;
+}
+.card-output{
+ background: #f3fff3;                /* light green tint */
+  border: 1px solid #b7e7b7;
+}
     .card-header{
       display:flex;
       align-items:center;
@@ -179,7 +188,7 @@
   <div class="container">
 
     <!-- Live Bets -->
-    <div class="card">
+    <div class="card card-live">
       <div class="card-header">
         <div class="card-title">Live Bets</div>
         <div class="card-sub">Enter your current positions</div>
@@ -226,7 +235,7 @@
     </div>
 
     <!-- Layoff Bets -->
-    <div class="card">
+    <div class="card card-layoff">
       <div class="card-header">
         <div class="card-title">Layoff Bets</div>
         <div class="card-sub">Target profit per outcome</div>
@@ -268,7 +277,7 @@
     </div>
 
     <!-- Output -->
-    <div class="card">
+    <div class="card card-output">
       <div class="output" id="output" aria-live="polite"></div>
     </div>
   </div>
