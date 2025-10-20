@@ -3,34 +3,82 @@
 
 {% block head_extra %}
 <style>
+  /* slight darken for inputs sitewide on this page */
+  .input{
+    border:1.5px solid #c7cfde;  /* darker than before */
+    background:#fff;
+  }
+  .input:focus{
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.15);
+  }
+
   .bm-card{ background:#fff; border:2px solid #111827; border-radius:12px; box-shadow: var(--shadow); }
-  .bm-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+
+  /* Title stacked above the description */
+  .bm-head{
+    display:flex; flex-direction:column; gap:6px; margin-bottom:12px;
+  }
+  .bm-head h2{ margin:0; line-height:1.15; }
   .bm-desc{ color:var(--muted); font-size:14px; }
+
+  /* Grid: make odds column narrower and keep probability neat */
+  /* cols: # | selection | odds | probability  */
   .bm-grid-head, .bm-row{
-    display:grid; grid-template-columns: 56px 1.1fr 1.2fr 120px;
+    display:grid;
+    grid-template-columns: 56px 1.35fr 220px 140px; /* odds is now fixed 220px & shorter */
     gap:12px; align-items:center;
   }
-  .bm-grid-head{ background:#111827; color:#fff; padding:10px 12px; border-radius:12px; font-weight:600; }
+  .bm-grid-head{
+    background:#111827; color:#fff; padding:10px 12px; border-radius:12px; font-weight:600;
+  }
   .bm-row{ padding:10px 0; }
-  .bm-actions{ display:flex; gap:8px; }
-  .pill{ display:inline-flex; align-items:center; padding:8px 12px; border-radius:12px; color:#fff; font-weight:700; }
-  .pill.dark{ background:#111827; }
-  .prob-badge{ background: rgba(22,163,74,.12); color:#16a34a; font-weight:700; border-radius:999px; padding:6px 10px; font-size:13px; }
+
+  /* Centered + bold numbers */
+  .num-center{ text-align:center; font-weight:700; }
+
+  /* Odds input centered & bold */
+  .odds-wrap{ display:flex; gap:8px; align-items:center; justify-content:center; }
+  .odds-wrap .input{ text-align:center; font-weight:700; }
+
   .btn-mini{ border:0; padding:8px 10px; border-radius:10px; background:#f3f4f6; cursor:pointer }
   .btn-mini:hover{ filter:brightness(1.05) }
+
+  .prob-badge{
+    display:inline-block;
+    min-width:92px;
+    text-align:center;
+    background: rgba(22,163,74,.12);
+    color:#16a34a;
+    font-weight:700;
+    border-radius:999px;
+    padding:6px 10px;
+    font-size:13px;
+  }
+
+  .pill{ display:inline-flex; align-items:center; padding:8px 12px; border-radius:12px; color:#fff; font-weight:700; }
+  .pill.dark{ background:#111827; }
+
+  @media (max-width: 720px){
+    .bm-grid-head, .bm-row{
+      grid-template-columns: 42px 1fr 180px 110px;
+    }
+  }
 </style>
 {% endblock %}
+
 
 {% block content %}
 <div class="wrap" style="max-width:980px; margin:24px auto;">
   <div class="card bm-card">
     <div class="bm-head">
-      <h2 style="margin:0">Bookmakers Percentage Calculator</h2>
-      <div class="bm-desc">
-        Enter decimal odds for outcomes in a market. We’ll convert to implied probabilities and show the total
-        <strong>book percentage</strong>. In a perfectly “fair” market, the total would be 100% but we understand that Bookies need to turn a profit.
-      </div>
-    </div>
+  <h2 style="margin:0">Bookmakers Percentage Calculator</h2>
+  <div class="bm-desc">
+    Enter decimal odds for outcomes in a market. We’ll convert to implied probabilities and show the total
+    <strong>book percentage</strong>. In a perfectly “fair” market, the total would be 100%.
+  </div>
+</div>
+
 
     <div class="bm-grid-head">
       <div>#</div>
@@ -78,7 +126,7 @@
     wrapper.dataset.index = index;
 
     wrapper.innerHTML = `
-      <div>${index}</div>
+     <div class="num-center">${index}</div>
 
       <div>
         <input class="input" type="text" placeholder="Name" aria-label="Selection name">
