@@ -21,6 +21,7 @@
         {% set p = request.url.path %}
         <a href="/" class="{{ 'active' if p == '/' else '' }}">Home</a>
         <a href="/calculator" class="{{ 'active' if p.startswith('/calculator') else '' }}">Layoff Calculator</a>
+          <a href="/book" class="{{ 'active' if p.startswith('/book') else '' }}">Bookmaker Calculator %</a>
         <a href="/faqs" class="{{ 'active' if p.startswith('/faqs') else '' }}">FAQs</a>
         <a href="/contact" class="{{ 'active' if p.startswith('/contact') else '' }}">Contact</a>
       </nav>

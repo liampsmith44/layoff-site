@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Bookmakers Percentage Calculator{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* Page-local tweaks that sit on top of your design tokens */
+  .book-card .card-sub{max-width:60ch}
+  .book-grid-header,
+  .book-row{
+    display:grid;
+    grid-template-columns: 0.15fr 1.1fr 1fr 0.8fr;
+    gap: var(--gap);
+    align-items: center;
+  }
+  .book-grid-header{
+    background:#111827; color:#fff; border-radius: var(--radius);
+    padding:10px 12px; font-weight:600; font-size:14px; margin: 6px 0 10px;
+  }
+  .book-row{ margin-bottom: 10px; }
+  .book-controls{
+    display:flex; gap:8px; align-items:center; justify-content:flex-start;
+  }
+  .btn-icon{
+    padding: 8px 10px; border-radius:10px; background:#f3f4f6; color:#111827; border:0;
+    cursor:pointer; transition: filter .12s;
+  }
+  .btn-icon:hover{ filter:brightness(1.03); }
+  .totals{
+    display:grid; grid-template-columns: 1fr 1fr; gap:10px;
+  }
+  .pill{
+    background:#0b1222; color:#fff; padding:10px 12px; border-radius:12px; font-weight:700;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow: 0 4px 14px rgba(2,8,23,.10);
+  }
+  .pill small{ font-weight:600; color:#9fb2ff; }
+  .hint{ color:var(--muted); font-size:13px; }
+  @media (max-width: 900px){
+    .book-grid-header, .book-row{
+      grid-template-columns: 0.15fr 1fr 1fr; /* hide controls into last col on mobile */
+    }
+    .book-controls{ justify-content:flex-end; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="card book-card">
+    <div class="card-header" style="margin-bottom: 12px;">
+      <div class="card-title">Bookmakers Percentage Calculator</div>
+      <div class="card-sub">
+        Enter decimal odds for the outcomes in a market. We’ll convert to implied probabilities and
+        show the total book percentage (overround). In a “perfect” fair market the total would be 100%.
+      </div>
+    </div>
+
+    <!-- Header row -->
+    <div class="book-grid-header">
+      <div>#</div>
+      <div><strong>Selection</strong></div>
+      <div><strong>Odds (decimal)</strong></div>
+      <div><strong>Probability</strong></div>
+    </div>
+
+    <!-- Rows -->
+    <div id="book-rows"></div>
+
+    <!-- Totals -->
+    <div class="summary-bar" style="margin-top:12px">
+      <div class="totals">
+        <div class="pill">
+          <span>Book %</span>
+          <span id="bookTotal">100.00%</span>
+        </div>
+        <div class="pill">
+          <span>Overround</span>
+          <span id="overround">0.00%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-success" id="addRowBtn">Add Row</button>
+      <button class="btn btn-danger" id="resetBtn">Reset</button>
+    </div>
+
+    <p class="hint">
+      <strong>Formula:</strong> Probability (%) = (1 / odds) × 100. Book % = sum of probabilities.
+      Overround = Book % − 100 (positive means a bookmaker margin).
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // --- Core state ---
+  let rows = []; // { id, name, odds }
+
+  // --- DOM refs ---
+  const rowsEl = document.getElementById('book-rows');
+  const bookTotalEl = document.getElementById('bookTotal');
+  const overroundEl = document.getElementById('overround');
+  const addRowBtn = document.getElementById('addRowBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  // --- Utils ---
+  const fmtPct = v => `${Number(v).toFixed(2)}%`;
+  const clampPositive = v => isNaN(v) || v <= 0 ? '' : String(v);
+
+  function impliedProb(odds){
+    const n = parseFloat(odds);
+    if (!isFinite(n) || n <= 0) return 0;
+    return (1 / n) * 100;
+  }
+
+  // --- Rendering ---
+  function render(){
+    rowsEl.innerHTML = '';
+    let total = 0;
+
+    rows.forEach((r, idx) => {
+      const prob = impliedProb(r.odds);
+      total += prob;
+
+      const row = document.createElement('div');
+      row.className = 'book-row';
+      row.innerHTML = `
+        <div>${idx + 1}</div>
+
+        <div>
+          <input class="input" type="text" placeholder="Selection name"
+                 value="${r.name ?? ''}"
+                 oninput="updateName(${r.id}, this.value)">
+        </div>
+
+        <div>
+          <div class="book-controls">
+            <button class="btn-icon" title="decrease" onclick="nudgeOdds(${r.id}, -0.1)">−</button>
+            <input class="input" type="number" inputmode="decimal" step="0.01" min="0"
+                   value="${clampPositive(r.odds)}"
+                   placeholder="e.g. 2.50"
+                   oninput="updateOdds(${r.id}, this.value)">
+            <button class="btn-icon" title="increase" onclick="nudgeOdds(${r.id}, 0.1)">+</button>
+            <button class="btn-icon" title="remove" onclick="removeRow(${r.id})">✕</button>
+          </div>
+        </div>
+
+        <div>
+          <span class="badge ${prob >= 0 ? 'success' : 'danger'}">${fmtPct(prob)}</span>
+        </div>
+      `;
+      rowsEl.appendChild(row);
+    });
+
+    bookTotalEl.textContent = fmtPct(total);
+    const over = total - 100;
+    overroundEl.textContent = (over >= 0 ? fmtPct(over) : `-${fmtPct(Math.abs(over))}`);
+  }
+
+  // --- Actions / State updates ---
+  let nextId = 1;
+
+  function addRow(name = '', odds = ''){
+    rows.push({ id: nextId++, name, odds });
+    render();
+  }
+  function removeRow(id){
+    rows = rows.filter(r => r.id !== id);
+    render();
+  }
+  function updateName(id, name){
+    const r = rows.find(x => x.id === id); if (!r) return;
+    r.name = name;
+    // live re-render not needed for name, but cheap to keep UX consistent:
+    render();
+  }
+  function updateOdds(id, val){
+    const r = rows.find(x => x.id === id); if (!r) return;
+    r.odds = val;
+    render();
+  }
+  function nudgeOdds(id, delta){
+    const r = rows.find(x => x.id === id); if (!r) return;
+    const current = parseFloat(r.odds);
+    const next = (isNaN(current) ? 0 : current) + delta;
+    r.odds = next > 0 ? next.toFixed(2) : '';
+    render();
+  }
+  function resetAll(){
+    rows = [];
+    seedRows();
+    render();
+  }
+
+  // --- Init ---
+  function seedRows(){
+    // Starter 3 rows
+    addRow('Selection 1', '2.50');
+    addRow('Selection 2', '3.40');
+    addRow('Selection 3', '6.00');
+  }
+
+  addRowBtn.addEventListener('click', () => addRow('', ''));
+  resetBtn.addEventListener('click', resetAll);
+
+  // First paint
+  rows = []; nextId = 1; seedRows(); // seedRows calls addRow(), which renders
+</script>
+{% endblock %}

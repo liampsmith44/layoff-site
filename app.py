@@ -34,3 +34,7 @@ async def faqs(request: Request):
 @app.get("/contact", response_class=HTMLResponse)
 async def contact(request: Request):
     return templates.TemplateResponse("contact.html", {"request": request})
+
+@app.get("/book", response_class=HTMLResponse)
+async def bookmakers_percentage(request: Request):
+    return templates.TemplateResponse("book.html", {"request": request})
