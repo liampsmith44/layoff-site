@@ -2,23 +2,21 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import traceback
 
 app = FastAPI()
 
-import traceback
-
+# Middleware to log full errors
 @app.middleware("http")
-async def log_exceptions(request, call_next):
+async def log_exceptions(request: Request, call_next):
     try:
         return await call_next(request)
     except Exception:
-        traceback.print_exc()   # <- prints full stacktrace to Railway logs
-        raise                   # let FastAPI still return 500
+        traceback.print_exc()
+        raise
 
-
-# serve /static (css, logos, etc.)
+# Static + templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
 templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
