@@ -5,6 +5,17 @@ from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
 
+import traceback
+
+@app.middleware("http")
+async def log_exceptions(request, call_next):
+    try:
+        return await call_next(request)
+    except Exception:
+        traceback.print_exc()   # <- prints full stacktrace to Railway logs
+        raise                   # let FastAPI still return 500
+
+
 # serve /static (css, logos, etc.)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
