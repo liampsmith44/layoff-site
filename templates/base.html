@@ -5,20 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}Layoff{% endblock %}</title>
 
-  <!-- your stylesheet -->
-  <link rel="stylesheet" href="/static/styles.css?v=1" />
+  <!-- Static CSS (FastAPI StaticFiles) -->
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
 
-  <!-- ADD THIS: allows pages (like calculator.html) to inject extra <style> or <script> in <head> -->
+  <!-- Optional page-specific <style> or <script> in <head> -->
   {% block head_extra %}{% endblock %}
-  </head>
-
+</head>
 <body>
 
-  <!-- Header (static) -->
+  <!-- Header -->
   <header class="site-header">
-    <div class="wrap">
-      <a class="logo" href="/">layoff<span>.com.au</span></a>
-      <nav class="main-nav">
+    <div class="wrap" style="display:flex;gap:28px;align-items:center;padding:16px 0;">
+      <a class="logo" href="/" style="text-decoration:none;color:#fff;font-weight:800;">layoff<span>.com.au</span></a>
+      <nav class="main-nav" style="display:flex;gap:12px;">
         {% set p = request.url.path %}
         <a href="/" class="{{ 'active' if p == '/' else '' }}">Home</a>
         <a href="/calculator" class="{{ 'active' if p.startswith('/calculator') else '' }}">Layoff Calculator</a>
@@ -28,18 +27,15 @@
     </div>
   </header>
 
+  <!-- Page content -->
   <main class="site-main">
     {% block content %}{% endblock %}
   </main>
 
-
-  <!-- Footer (editable) -->
+  <!-- Footer -->
   <footer class="site-footer">
     <div class="wrap footer-grid">
-      <div>
-        <div class="logo small">layoff<span>.com.au</span></div>
-        <p class="muted">Tools for managing live positions & layoff bets.</p>
-      </div>
+      <div class="logo small">layoff<span>.com.au</span></div>
       <div>
         <h4>Links</h4>
         <ul>
@@ -49,29 +45,18 @@
         </ul>
       </div>
       <div>
-        <h4>Legal</h4>
-        <ul>
-          <li><a href="#">Disclaimer</a></li>
-          <li><a href="#">Terms</a></li>
-          <li><a href="#">Privacy</a></li>
-        </ul>
-      </div>
-      <div>
         <h4>Contact</h4>
         <ul>
           <li><a href="mailto:hello@layoff.com.au">hello@layoff.com.au</a></li>
-          <li class="socials">
-            <a href="#" aria-label="Twitter">🐦</a>
-            <a href="#" aria-label="LinkedIn">🔗</a>
-          </li>
         </ul>
       </div>
     </div>
-    <div class="wrap fineprint">
-  <p>© layoff.com.au — Informational only, not financial advice. Australia jurisdiction.</p>
-</div>
+    <div class="wrap fineprint" style="margin-top:10px;">
+      <p>© layoff.com.au — Informational only, not financial advice. Australia jurisdiction.</p>
+    </div>
   </footer>
- {% block content %}{% endblock %}
+
+  <!-- Optional page-specific scripts at end of body -->
   {% block scripts %}{% endblock %}
 </body>
 </html>
